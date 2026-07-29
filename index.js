@@ -39,7 +39,13 @@ async function main() {
   const anthropic = buildAnthropicClient();
   const newResults = [];
   for (const placement of enriched) {
-    const classification = await classifyPlacement(placement, anthropic);
+    let classification;
+    try {
+      classification = await classifyPlacement(placement, anthropic);
+    } catch (e) {
+      console.warn(`Classificatie overgeslagen voor ${placement.youtubeId}: ${e.message}`);
+      classification = { relevant: false, score: 1, reason: "Classificatiefout — veiligheidshalve uitgesloten", category: "onbekend" };
+    }
     claudeCalls += 1;
     const result = { ...placement, classification };
     newResults.push(result);
